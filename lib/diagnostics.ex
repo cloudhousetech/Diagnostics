@@ -31,19 +31,8 @@ defmodule Diagnostics do
   end
 
   def state_size(pid) do
-    {:status, _, _, [_, _, _, _, state]} = :sys.get_status pid
-    words_to_mb(:erts_debug.flat_size(state_data(state)))
-  end
-
-  defp state_data([{:data, [{'State', state}]}| _]) do
-    state
-  end
-
-  defp state_data([_|tail]) do
-    state_data tail
-  end
-
-  defp state_data([]) do
+    state = :sys.get_state pid
+    words_to_mb(:erts_debug.flat_size(state))
   end
 
   defp process_stream("", fun), do: process_stream(fun)
