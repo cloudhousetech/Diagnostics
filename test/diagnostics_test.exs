@@ -3,9 +3,9 @@ defmodule DiagnosticsTest do
   alias Diagnostics
   alias Test.Process
 
-  test "Largest process" do
-    {:ok, big_process} = Process.start_link Enum.to_list(1..1000)
-    {:ok, small_process} = Process.start_link :nil
+  test "Processes by size" do
+    {:ok, big_process} = Process.start_link large_state
+    {:ok, small_process} = Process.start_link small_state
 
     [%{pid: largest_process}, %{pid: next_largest_process}] = Diagnostics.processes_by_size("Test", 2)
     assert big_process == largest_process
@@ -15,8 +15,11 @@ defmodule DiagnosticsTest do
     assert big_process == largest_process
     assert small_process == next_largest_process
 
-    all_pids = Diagnostics.processes_by_size(1000)
-               |> Enum.map(fn %{pid: pid} -> pid end)
+    all_pids = Diagnostics.processes_by_size |> Enum.map(fn %{pid: pid} -> pid end)
+    assert big_process in all_pids
+    assert small_process in all_pids
+
+    all_pids = Diagnostics.processes_by_size(1000) |> Enum.map(fn %{pid: pid} -> pid end)
     assert big_process in all_pids
     assert small_process in all_pids
   end
@@ -45,13 +48,14 @@ defmodule DiagnosticsTest do
   end
 
   test "Module name" do
-    {:ok, process} = Process.start_link :nil
+    {:ok, process} = Process.start_link small_state
     assert "Elixir.#{inspect Test.Process}" == Diagnostics.module_name process
   end
 
   test "Size" do
-    {:ok, small_process} = Process.start_link :nil
-    {:ok, big_process} = Process.start_link Enum.to_list(1..1000)
+    {:ok, small_process} = Process.start_link small_state
+    {:ok, big_process} = Process.start_link large_state
+
     small_process_size = Diagnostics.size small_process
     big_process_size = Diagnostics.size big_process
 
@@ -59,10 +63,12 @@ defmodule DiagnosticsTest do
   end
 
   test "State size" do
-    state = Enum.to_list(1..1000)
-    {:ok, process} = Process.start_link state
-    assert Diagnostics.state_size(process) == Diagnostics.words_to_mb(:erts_debug.flat_size(state))
+    {:ok, process} = Process.start_link large_state
+    assert Diagnostics.state_size(process) == Diagnostics.words_to_mb(:erts_debug.flat_size(large_state))
   end
+
+  def large_state, do: Enum.to_list(1..1000)
+  def small_state, do: :nil
 end
 
 defmodule Test.Process do

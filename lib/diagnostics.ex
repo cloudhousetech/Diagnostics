@@ -1,4 +1,5 @@
 defmodule Diagnostics do
+  def processes_by_size(), do: processes_by_size("")
   def processes_by_size(text, count), do: processes_by_size(text) |> Enum.take(count)
   def processes_by_size(count) when is_number(count), do: processes_by_size("") |> Enum.take(count)
   def processes_by_size(text) do
@@ -6,6 +7,7 @@ defmodule Diagnostics do
     |> Enum.sort_by(fn %{info: {_, size}} -> -size end)
   end
 
+  def processes_by_large_binary_size(), do: processes_by_large_binary_size("") 
   def processes_by_large_binary_size(text, count), do: processes_by_large_binary_size(text) |> Enum.take(count)
   def processes_by_large_binary_size(count) when is_number(count), do: processes_by_large_binary_size("") |> Enum.take(count)
   def processes_by_large_binary_size(text) do
