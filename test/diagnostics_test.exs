@@ -58,6 +58,11 @@ defmodule DiagnosticsTest do
     assert small_process_size < big_process_size
   end
 
+  test "State size" do
+    state = Enum.to_list(1..1000)
+    {:ok, process} = Process.start_link state
+    assert Diagnostics.state_size(process) == Diagnostics.words_to_mb(:erts_debug.flat_size(state))
+  end
 end
 
 defmodule Test.Process do

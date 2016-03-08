@@ -28,6 +28,22 @@ defmodule Diagnostics do
     do_size(:erlang.process_info(pid))
   end
 
+  def state_size(pid) do
+    {:status, _, _, [_, _, _, _, state]} = :sys.get_status pid
+    words_to_mb(:erts_debug.flat_size(state_data(state)))
+  end
+
+  defp state_data([{:data, [{'State', state}]}| tail]) do
+    state
+  end
+
+  defp state_data([head|tail]) do
+    state_data tail
+  end
+
+  defp state_data([]) do
+  end
+
   defp process_stream("", fun), do: process_stream(fun)
   defp process_stream(text, fun), do: process_stream(fun) |> Stream.filter(fn %{module: module} -> module |> String.contains?(text) end)
   defp process_stream(fun) do
@@ -70,11 +86,19 @@ defmodule Diagnostics do
   end
 
   defp do_size(:undefined), do: 0
-  defp do_size(info), do: 8 * (info[:stack_size] + info[:heap_size]) / (1024*1024)
+  defp do_size(info), do: words_to_mb(info[:total_heap_size])
 
   defp module(:undefined), do: "No longer exists"
   defp module(%{"$initial_call": {module, _, _}}), do: module |> to_string
   defp module(%{dictionary: dictionary}), do: module dictionary
   defp module(info) when is_list(info), do: module info |> Map.new
   defp module(_), do: "Unknown"
+
+  def words_to_mb(words) do
+    (words * :erlang.system_info(:wordsize)) |> in_mb
+  end
+
+  def in_mb(bytes) do
+    Float.round(bytes/(1024*1024), 4)
+  end
 end
