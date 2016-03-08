@@ -1,9 +1,8 @@
 # Diagnostics
 
-A collection of diagnostic bits and pieces for Elixir
+A collection of diagnostic bits and pieces for Elixir. 
 
-
-Examples:
+Examples (these are called from a remote node):
 
 Get module name from pid
 ```elixir
