@@ -33,11 +33,11 @@ defmodule Diagnostics do
     words_to_mb(:erts_debug.flat_size(state_data(state)))
   end
 
-  defp state_data([{:data, [{'State', state}]}| tail]) do
+  defp state_data([{:data, [{'State', state}]}| _]) do
     state
   end
 
-  defp state_data([head|tail]) do
+  defp state_data([_|tail]) do
     state_data tail
   end
 
