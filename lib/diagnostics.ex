@@ -25,8 +25,7 @@ defmodule Diagnostics do
   def module_name(pid), do: module(:erlang.process_info(pid))
 
   def size(pid) do
-    {_, info} = :erlang.process_info(pid)
-    do_size(info)
+    do_size(:erlang.process_info(pid))
   end
 
   defp process_stream("", fun), do: process_stream(fun)

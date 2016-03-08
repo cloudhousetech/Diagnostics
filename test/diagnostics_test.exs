@@ -3,7 +3,7 @@ defmodule DiagnosticsTest do
   alias Diagnostics
   alias Test.Process
 
-  test "largest process" do
+  test "Largest process" do
     {:ok, big_process} = Process.start_link Enum.to_list(1..1000)
     {:ok, small_process} = Process.start_link :nil
 
@@ -29,11 +29,11 @@ defmodule DiagnosticsTest do
     assert process_count == count
   end
 
-  test "processes by large binary refs" do
+  test "Processes by large binary refs" do
     binary1 = 1..1000 |> Enum.reduce(<<>>, fn(x, acc) -> acc <> to_string(x) end) 
     binary2 = 1001..2000 |> Enum.reduce(<<>>, fn(x, acc) -> acc <> to_string(x) end) 
     binary1_size = byte_size binary1
-    both_binary_size = byte_size(binary2) + byte_size(binary1)
+    both_binary_size = byte_size(binary2) + binary1_size
 
     {:ok, pid} = Process.start_link [binary1, binary2]
     assert [%{info: %{duplicates: 0, unique: 2, total: 2, size: ^both_binary_size}}] = Diagnostics.processes_by_large_binary_size("Test", 2)
@@ -42,6 +42,20 @@ defmodule DiagnosticsTest do
     {:ok, pid} = Process.start_link [binary1, binary1]
     assert [%{info: %{duplicates: 1, unique: 1, total: 2, size: ^binary1_size}}] = Diagnostics.processes_by_large_binary_size("Test", 1)
     Agent.stop pid 
+  end
+
+  test "Module name" do
+    {:ok, process} = Process.start_link :nil
+    assert "Elixir.#{inspect Test.Process}" == Diagnostics.module_name process
+  end
+
+  test "Size" do
+    {:ok, small_process} = Process.start_link :nil
+    {:ok, big_process} = Process.start_link Enum.to_list(1..1000)
+    small_process_size = Diagnostics.size small_process
+    big_process_size = Diagnostics.size big_process
+
+    assert small_process_size < big_process_size
   end
 
 end
