@@ -30,9 +30,10 @@ defmodule Diagnostics do
     do_size(:erlang.process_info(pid))
   end
 
+  def state(pid), do: :sys.get_state pid
+
   def state_size(pid) do
-    state = :sys.get_state pid
-    words_to_mb(:erts_debug.flat_size(state))
+    words_to_mb(:erts_debug.flat_size(state(pid)))
   end
 
   defp process_stream("", fun), do: process_stream(fun)
