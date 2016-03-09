@@ -30,11 +30,16 @@ defmodule Diagnostics do
     do_size(:erlang.process_info(pid))
   end
 
-  def state(pid), do: :sys.get_state pid
+  def state(pid) do
+    state = :sys.get_state pid
+    %{state: state, size: do_state_size(state)}
+  end
 
   def state_size(pid) do
-    words_to_mb(:erts_debug.flat_size(state(pid)))
+    do_state_size(state(pid))
   end
+
+  defp do_state_size(state), do: words_to_mb(:erts_debug.flat_size(state))
 
   defp process_stream("", fun), do: process_stream(fun)
   defp process_stream(text, fun), do: process_stream(fun) |> Stream.filter(fn %{module: module} -> module |> String.contains?(text) end)
