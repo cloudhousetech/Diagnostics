@@ -19,6 +19,11 @@ Get the size of processes state
 Diagnostics.state_size(pid)
 ```
 
+Get a processes state
+```elixir
+Diagnostics.state(pid)
+```
+
 List the processes in the system using the most memory (total heap) by module name and the count of them running on the node
 ```elixir
 Diagnostics.processes_by_module
