@@ -3,7 +3,7 @@ defmodule Diagnostics do
   def processes_by_size(text, count), do: processes_by_size(text) |> Enum.take(count)
   def processes_by_size(count) when is_number(count), do: processes_by_size("") |> Enum.take(count)
   def processes_by_size(text) do
-    process_stream(text, modules_by_size)
+    process_stream(text, modules_by_size())
     |> Enum.sort_by(fn %{info: {_, size}} -> -size end)
   end
 
@@ -11,12 +11,12 @@ defmodule Diagnostics do
   def processes_by_large_binary_size(text, count), do: processes_by_large_binary_size(text) |> Enum.take(count)
   def processes_by_large_binary_size(count) when is_number(count), do: processes_by_large_binary_size("") |> Enum.take(count)
   def processes_by_large_binary_size(text) do
-    process_stream(text, modules_by_binary_refs)
+    process_stream(text, modules_by_binary_refs())
     |> Enum.sort_by(fn %{info: %{size: total}} -> -total end)
   end
 
   def processes_by_module do
-    process_stream(modules_by_size)
+    process_stream(modules_by_size())
     |> Stream.map(fn %{module: module, info: {_, size}} -> {module, size} end)
     |> Enum.group_by(fn {module, _} -> module end)
     |> Map.to_list

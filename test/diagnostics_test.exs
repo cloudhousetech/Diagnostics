@@ -4,8 +4,8 @@ defmodule DiagnosticsTest do
   alias Test.Process
 
   test "Processes by size" do
-    {:ok, big_process} = Process.start_link large_state
-    {:ok, small_process} = Process.start_link small_state
+    {:ok, big_process} = Process.start_link large_state()
+    {:ok, small_process} = Process.start_link small_state()
 
     [%{pid: largest_process}, %{pid: next_largest_process}] = Diagnostics.processes_by_size("Test", 2)
     assert big_process == largest_process
@@ -48,13 +48,13 @@ defmodule DiagnosticsTest do
   end
 
   test "Module name" do
-    {:ok, process} = Process.start_link small_state
+    {:ok, process} = Process.start_link small_state()
     assert "Elixir.#{inspect Test.Process}" == Diagnostics.module_name process
   end
 
   test "Size" do
-    {:ok, small_process} = Process.start_link small_state
-    {:ok, big_process} = Process.start_link large_state
+    {:ok, small_process} = Process.start_link small_state()
+    {:ok, big_process} = Process.start_link large_state()
 
     small_process_size = Diagnostics.size small_process
     big_process_size = Diagnostics.size big_process
@@ -63,11 +63,11 @@ defmodule DiagnosticsTest do
   end
 
   test "State" do
-    {:ok, process} = Process.start_link large_state
-    expected_state_size = Diagnostics.words_to_mb(:erts_debug.flat_size(large_state))
+    {:ok, process} = Process.start_link large_state()
+    expected_state_size = Diagnostics.words_to_mb(:erts_debug.flat_size(large_state()))
 
     assert Diagnostics.state_size(process) == expected_state_size
-    assert Diagnostics.state(process) == %{state: large_state, size: expected_state_size}
+    assert Diagnostics.state(process) == %{state: large_state(), size: expected_state_size}
   end
 
   def large_state, do: Enum.to_list(1..1000)
